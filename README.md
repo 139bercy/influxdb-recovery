@@ -77,29 +77,27 @@ comportement attendu.
 
 La partie "sauvegarde" va permettre de: 
 
-- récupérer par l'intermédiaire de l'`API` les messages stockés dans `Influxdb` 
-par lot d'une minute en se basant sur l'horodatage desdits messages ;
-- nettoyer ces messages des méta-données de `Influxdb` afin qu'ils correspondent 
-à des messages bruts prêts à être renvoyés dans `Influxdb` en utilisant le 
-protocole `GELF over HTTP`;
-- stocker ces messages dans un conteneur Swift, regroupés par minute en se 
-basant sur leur horodatage. Chaque objet stocké contient un tableau JSON de 
-messages.
+- récupérer par l'intermédiaire de l'`API` les métriques stockés dans `Influxdb` 
+par lot d'une minute en se basant sur l'horodatage desdits métriques ;
+- formater ces métriques au format InfluxDB Line Protocol  
+(https://v2.docs.influxdata.com/v2.0 reference/syntax/line-protocol/) ;
+- stocker ces métriques dans un conteneur Swift, regroupés par minute en se 
+basant sur leur horodatage. Chaque objet stocké contient des lignes de métriques au format InfluxDB Line Protocol.
 
 ### Restaurer
 
 La partie "restauration" va permettre de:
 
-- récupérer les messages depuis les objets stockés précédemment ;
-- rejouer leur insertion dans Influxdb par l'entrée `XXXXXXXXXXXXXXXXX`.
+- récupérer les métriques depuis les objets stockés précédemment ;
+- rejouer leur insertion par l'API d'Influxdb.
 
 ### État de la sauvegarde
 
 La partie "état de la sauvegarde" ou "statut" va permettre de:
 
 - afficher le delta entre Influxdb et la sauvegarde (le temps en heures minutes) 
-des messages stockés ;
-- afficher les dates du premier et dernier message stockés dans `Influxdb` et 
+des métriques stockés ;
+- afficher les dates du premier et dernier métriques stockés dans `Influxdb` et 
 `Swift`.
 
 ### Évolutions futures et facilité de maintenance
@@ -119,7 +117,7 @@ Par exemple: `irec backup dashboard`.
 ```bash
 # Utilisation de la fonction "backup".
 # Version "lisible par un humain".
-$ irec -f human backup messages <options influxdb> <options swift>
+$ irec -f human backup metrics <options influxdb> <options swift>
 	Delay:
 		3 days, 6 hours, 24 minutes
 
@@ -131,20 +129,20 @@ $ irec -f human backup messages <options influxdb> <options swift>
 […]
 
 	Success:
-		3000 messages
+		3000 metrics
 		8 minutes 15 seconds spent to backup
 $ echo $?
 0
 
-# Version "JSON": un message JSON par ligne, affichage au fil de l'eau.
-$ irec -f json restore <options influxdb> <options swift>
+# Version "JSON": un metrique au format JSON par ligne, affichage au fil de l'eau.
+$ irec -f json restore metrics <options influxdb> <options swift>
 {"action":"backup","delay":{"days": 3,"hours":6,"minutes":24}}
 {"action":"backup","from":"2020-01-01 08:00:00","to":"2020-01-01 08:01:00","status":"ok"}
 {"action":"backup","from":"2020-01-01 08:01:00","to":"2020-01-01 08:02:00","status":"ok"}
 {"action":"backup","from":"2020-01-01 08:02:00","to":"2020-01-01 08:03:00","status":"ok"}
 {"action":"backup","from":"2020-01-01 08:03:00","to":"2020-01-01 08:04:00","status":"ok"}
 […]
-{"action":"restore","status": "success","messages": 3000, "time":{"hours":0, "minutes": 8, "seconds":15}}
+{"action":"restore","status": "success","metrics": 3000, "time":{"hours":0, "minutes": 8, "seconds":15}}
 $ echo $?
 0
 $
@@ -153,7 +151,7 @@ $
 ```bash
 # Utilisation de la fonction "restore".
 # Version "lisible par un humain", affichage au fil de l'eau.
-$ irec -f human restore messages  <options influxdb> <options swift>
+$ irec -f human restore metrics  <options influxdb> <options swift>
 	Delay:
 		3 days, 6 hours, 24 minutes
 
@@ -165,7 +163,7 @@ $ irec -f human restore messages  <options influxdb> <options swift>
 […]
 
 	Success:
-		3000 messages
+		3000 metrics
 		8 minutes 15 seconds spent to restore
 $ echo $?
 0
@@ -173,14 +171,14 @@ $ echo $?
 # Version "JSON": un message JSON par ligne, affichage au fil de l'eau.
 # La version "pretty JSON" n'est pas affichée pour alléger la lecture du 
 # document mais sera également implémentée.
-$ irec -f json restore messages <options influxdb> <options swift>
+$ irec -f json restore metrics <options influxdb> <options swift>
 {"action":"restore","delay":{"days": 3,"hours":10,"minutes":24}}
 {"action":"restore","from":"2020-01-01 08:00:00","to":"2020-01-01 08:01:00","status":"ok"}
 {"action":"restore","from":"2020-01-01 08:01:00","to":"2020-01-01 08:02:00","status":"ok"}
 {"action":"restore","from":"2020-01-01 08:02:00","to":"2020-01-01 08:03:00","status":"ok"}
 {"action":"restore","from":"2020-01-01 08:03:00","to":"2020-01-01 08:04:00","status":"ok"}
 […]
-{"action":"restore","status": "success","messages": 3000, "time":{"hours":0, "minutes": 8, "seconds":15}}
+{"action":"restore","status": "success","metrics": 3000, "time":{"hours":0, "minutes": 8, "seconds":15}}
 $ echo $?
 0
 $
@@ -189,7 +187,7 @@ $
 ```bash
 # Utilisation de la fonction "status".
 # Version "lisible par un humain", affichage au fil de l'eau.
-$ irec -f human status messages <options influxdb> <options swift>
+$ irec -f human status metrics <options influxdb> <options swift>
 	influxdb: 
 		first message: 2019-01-01 08:00:00
 		last message:  2020-01-04 09:00:00
@@ -206,7 +204,7 @@ $ echo $?
 # Version "pretty JSON": un tableau contenant le résultat.
 # La version "JSON" n'est pas affichée pour alléger la lecture du document 
 # mais sera également implémentée.
-$ irec -f pretty-json status messages <options influxdb> <options swift>
+$ irec -f pretty-json status metrics <options influxdb> <options swift>
 {
 	"status": {
 		"influxdb": {
@@ -303,7 +301,7 @@ statique. En effet, il doit être indépendant du système d'exploitation sur
 lequel il est installé. De plus, la quantité de données à traiter peut être 
 très élevée:
 
-    * de bonnes performances sont requises (estimation à 360000 messages par 
+    * de bonnes performances sont requises (estimation à 360000 métriques par 
     minute en pic) ;
     * un langage compilé est souhaité (`Go`) ;
     * les bibliothèques externes doivent être disponibles sur des dépôts `git` 
