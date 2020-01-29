@@ -189,12 +189,12 @@ $
 # Version "lisible par un humain", affichage au fil de l'eau.
 $ irec -f human status metrics <options influxdb> <options swift>
 	influxdb: 
-		first message: 2019-01-01 08:00:00
-		last message:  2020-01-04 09:00:00
+		first metric: 2019-01-01 08:00:00
+		last metric:  2020-01-04 09:00:00
 
 	Swift:
-		first message: 2019-01-01 08:00:00
-		last message:  2019-12-31 22:57:00
+		first metric: 2019-01-01 08:00:00
+		last metric:  2019-12-31 22:57:00
 
 	Delay:
 		3 days, 10 hours, 3 minutes
@@ -208,12 +208,12 @@ $ irec -f pretty-json status metrics <options influxdb> <options swift>
 {
 	"status": {
 		"influxdb": {
-			"first message": "2019-01-01 08:00:00",
-			"last message": "2020-01-04 09:00:00"
+			"first metric": "2019-01-01 08:00:00",
+			"last metric": "2020-01-04 09:00:00"
 		},
 	    "swift": {
-			"first message": "2019-01-01 08:00:00",
-			"last message":  "2019-12-31 22:57:00"
+			"first metric": "2019-01-01 08:00:00",
+			"last metric":  "2019-12-31 22:57:00"
 		},
 		"delay": {
 			"days": 3,
