@@ -168,7 +168,7 @@ $ irec -f human restore metrics  <options influxdb> <options swift>
 $ echo $?
 0
 
-# Version "JSON": un message JSON par ligne, affichage au fil de l'eau.
+# Version "JSON": un metrique au format JSON par ligne, affichage au fil de l'eau.
 # La version "pretty JSON" n'est pas affichée pour alléger la lecture du 
 # document mais sera également implémentée.
 $ irec -f json restore metrics <options influxdb> <options swift>
